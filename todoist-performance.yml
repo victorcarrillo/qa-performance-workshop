@@ -1,0 +1,27 @@
+config: 
+  target: "https://api.todoist.com"
+  phases: 
+    - duration: 5
+      arrivalRate: 5
+      name: "Warm Up"
+  defaults :
+    headers : 
+      Authorization : Bearer ffed3bab2a48aa2347ce931cbc7b6a52d6183fff
+      Content-Type : application/json
+  variables :
+    project_name:
+      - "Performance Project"
+    url_project:
+      - "/rest/v1/projects"
+    task_name : 
+      - "Active Task"
+scenarios:
+  - flow : 
+    - post : 
+        url: "{{ url_project }}"
+        json : 
+          name : "{{ task_name }}"
+        capture : 
+          json : "$.id"
+          as : "id_project"
+    - log: "Project Id  is {{ id_project }}"

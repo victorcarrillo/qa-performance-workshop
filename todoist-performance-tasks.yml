@@ -1,0 +1,35 @@
+config: 
+  target: "https://api.todoist.com"
+  phases: 
+    - duration: 3
+      arrivalRate: 5
+      name: "Warm Up"
+  defaults :
+    headers : 
+      Authorization : Bearer {{ $processEnvironment.TOKEN }}
+      Content-Type : application/json
+  variables :
+    project_name:
+      - "NEw Performance Project"
+    url_tasks:
+      - "/rest/v1/tasks"
+    task_name:
+      - "task performance"
+scenarios:
+  - flow : 
+    - log : Scenario to create Tasks and Delete Tasks
+    - post : 
+        url: "{{ url_tasks }}"
+        json : 
+          content : "{{ task_name }}"
+        capture : 
+          json : "$.id"
+          as : "id_task"
+    - log: "Task Id  is {{ id_task }}"
+    - think : 5
+    - delete : 
+        url : "{{ url_tasks }}/{{ id_task }}"
+    - log : " Deleting Task ID is {{ id_task }}"
+  
+    
+   

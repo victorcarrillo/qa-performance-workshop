@@ -1,0 +1,63 @@
+config: 
+  target: "https://api.todoist.com"
+  processor : "./randomData.js"
+  phases: 
+    - duration: 1
+      arrivalRate: 2
+      name: "Testing Performance on todoist app."
+  defaults :
+    headers : 
+      Authorization : Bearer {{ $processEnvironment.TOKEN }}
+      Content-Type : application/json
+  variables :
+    project_name:
+      - "New Performance Project"
+    url_tasks:
+      - "/rest/v1/tasks"
+scenarios:
+  - flow : 
+    - function : createTaskName
+    - log : CREATE NEW TASKS
+    - post : 
+        url: "{{ url_tasks }}"
+        json : 
+          content : "{{ taskName }}"
+        capture : 
+          json : "$.id"
+          as : "id_task"
+    - log: "Task Id  is {{ id_task }}"
+
+    - log : GET ACTIVE TASKS
+    - get :
+        url: "{{ url_tasks }}/{{ id_task }}"
+        capture : 
+          json : "$.content"
+          as : "id_task_name"
+    - log: "Task Id  is {{ id_task_name }}"
+    - think : 2
+
+    - function : createUpdateName
+    - log : UPDATE TASKS VALUE  
+    - post : 
+        url: "{{ url_tasks }}/{{ id_task }}"
+        json : 
+          content : "{{ updateName }}"
+    - log : "Renaming Task to {{ updateName }}"
+    - think : 3
+
+    - log : CLOSING A TASK
+    - post : 
+        url : "{{ url_tasks }}/{{ id_task }}/close"
+    - think : 2
+
+    - log : REOPENING A TASK
+    - post :
+        url : "{{ url_tasks }}/{{ id_task }}/reopen"
+    - think : 2
+
+    - log : DELETING A TASK
+    - delete :
+        url : "{{ url_tasks }}/{{ id_task }}"
+  
+    
+   
